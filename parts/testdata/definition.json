@@ -1,0 +1,73 @@
+{
+    "states": "ABCD",
+    "symbols": "01 ",
+    "blank": " ",
+    "alphabet": "01",
+    "start-state": "A",
+    "final-states": "",
+    "transitions": [
+        {
+            "current-state": "A",
+            "current-symbol": "0",
+            "next-symbol": "0",
+            "next-state": "A",
+            "movement": "R"
+        },
+        {
+            "current-state": "A",
+            "current-symbol": "1",
+            "next-symbol": "1",
+            "next-state": "A",
+            "movement": "R"
+        },
+        {
+            "current-state": "A",
+            "current-symbol": " ",
+            "next-symbol": " ",
+            "next-state": "B",
+            "movement": "L"
+        },
+        {
+            "current-state": "B",
+            "current-symbol": "0",
+            "next-symbol": "1",
+            "next-state": "C",
+            "movement": "L"
+        },
+        {
+            "current-state": "B",
+            "current-symbol": "1",
+            "next-symbol": "0",
+            "next-state": "B",
+            "movement": "L"
+        },
+        {
+            "current-state": "B",
+            "current-symbol": " ",
+            "next-symbol": "1",
+            "next-state": "C",
+            "movement": "L"
+        },
+        {
+            "current-state": "C",
+            "current-symbol": "0",
+            "next-symbol": "0",
+            "next-state": "C",
+            "movement": "R"
+        },
+        {
+            "current-state": "C",
+            "current-symbol": "1",
+            "next-symbol": "1",
+            "next-state": "C",
+            "movement": "R"
+        },
+        {
+            "current-state": "C",
+            "current-symbol": " ",
+            "next-symbol": " ",
+            "next-state": "D",
+            "movement": "L"
+        }
+    ]
+}
