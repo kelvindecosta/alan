@@ -6,6 +6,7 @@ import (
 
 // Definition represents the formal definition of a Turing Machine
 type Definition struct {
+	Description string            `json:"description"`
 	States      string            `json:"states"`
 	Symbols     string            `json:"symbols"`
 	Blank       string            `json:"blank"`
