@@ -2,12 +2,8 @@ package parts
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"strings"
-
-	"github.com/kelvindecosta/alan/utils"
-	"github.com/mgutz/ansi"
 )
 
 // Machine represents a Turing Machine
@@ -33,13 +29,16 @@ func (m *Machine) Load(definitionFile string) {
 	}
 }
 
-// Reset resets the Machine to the initial state
+// Reset resets the Machine to the initial state and loads input tape
 func (m *Machine) Reset(input string) {
 	// Set machine on start state
 	m.State = m.Rules.Start
 
 	// Load input and set head
 	m.Tape = input
+	if m.Tape == "" {
+		m.Tape = m.Rules.Blank
+	}
 	m.Head = 0
 }
 
@@ -76,9 +75,9 @@ func (m *Machine) Step() bool {
 }
 
 // Compute returns the Machine tape after processing an input, if it halted and if the input was accepted
-func (m *Machine) Compute(input string, maxSteps int) (string, bool, bool) {
+func (m *Machine) Compute(input string, maxSteps uint) (string, bool, bool) {
 	m.Reset(input)
-	steps := 0
+	var steps uint
 	halt := false
 
 	for steps < maxSteps && !halt {
@@ -88,35 +87,4 @@ func (m *Machine) Compute(input string, maxSteps int) (string, bool, bool) {
 
 	accepted := halt && strings.Contains(m.Rules.Final, m.State)
 	return m.Tape, halt, accepted
-}
-
-// Trace shows step wise processing of input string by Machine
-func (m *Machine) Trace(input string, maxSteps int) {
-	m.Reset(input)
-	steps := 0
-	halt := false
-
-	fmt.Println(ansi.Color("\n  STEP  STATE  TAPE\n", "yellow"))
-	fmt.Println(fmt.Sprintf("%5d\t%5s", steps, m.State) + "\t" + utils.Highlight(m.Tape, m.Head))
-
-	for steps < maxSteps && !halt {
-		steps++
-		halt = m.Step()
-		fmt.Println(fmt.Sprintf("%5d\t%5s", steps, m.State) + "\t" + utils.Highlight(m.Tape, m.Head))
-	}
-	var output, color string
-	if halt {
-		if strings.Contains(m.Rules.Final, m.State) {
-			color = "green"
-			output = fmt.Sprintf("\nMachine halted in %s and accepted input", utils.Plural(steps, "step"))
-		} else {
-			color = "red"
-			output = fmt.Sprintf("\nMachine halted in %s and rejected input", utils.Plural(steps, "step"))
-		}
-	} else {
-		color = "blue"
-		output = fmt.Sprintf("\nMachine cannot decide in %s", utils.Plural(maxSteps, "step"))
-	}
-
-	fmt.Println(ansi.Color(output, color))
 }
