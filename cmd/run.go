@@ -21,8 +21,7 @@ var runCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 }
 
-var inputDirect string
-var inputFilename string
+var inputDirect, inputFilename string
 var verbose bool
 var maxSteps uint
 
@@ -52,7 +51,7 @@ func run(cmd *cobra.Command, args []string) error {
 	if inputFilename != "" {
 		file, err := os.Open(inputFilename)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		defer file.Close()
 
