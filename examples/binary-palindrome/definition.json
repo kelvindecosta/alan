@@ -1,0 +1,193 @@
+{
+	"description": "Checks if binary string is a palindrome",
+	"states": "ABCDEFG",
+	"symbols": "01XY ",
+	"blank": " ",
+	"alphabet": "01",
+	"start-state": "A",
+	"final-states": "G",
+	"transitions": [
+		{
+			"current-state": "B",
+			"current-symbol": "X",
+			"next-symbol": "X",
+			"next-state": "C",
+			"movement": "L"
+		},
+		{
+			"current-state": "A",
+			"current-symbol": "Y",
+			"next-symbol": "Y",
+			"next-state": "A",
+			"movement": "L"
+		},
+		{
+			"current-state": "A",
+			"current-symbol": "1",
+			"next-symbol": "Y",
+			"next-state": "F",
+			"movement": "R"
+		},
+		{
+			"current-state": "B",
+			"current-symbol": "1",
+			"next-symbol": "1",
+			"next-state": "B",
+			"movement": "R"
+		},
+		{
+			"current-state": "F",
+			"current-symbol": "1",
+			"next-symbol": "1",
+			"next-state": "F",
+			"movement": "R"
+		},
+		{
+			"current-state": "A",
+			"current-symbol": "X",
+			"next-symbol": "X",
+			"next-state": "A",
+			"movement": "L"
+		},
+		{
+			"current-state": "C",
+			"current-symbol": "0",
+			"next-symbol": "X",
+			"next-state": "D",
+			"movement": "L"
+		},
+		{
+			"current-state": "B",
+			"current-symbol": " ",
+			"next-symbol": " ",
+			"next-state": "C",
+			"movement": "L"
+		},
+		{
+			"current-state": "A",
+			"current-symbol": "0",
+			"next-symbol": "X",
+			"next-state": "B",
+			"movement": "R"
+		},
+		{
+			"current-state": "B",
+			"current-symbol": "Y",
+			"next-symbol": "Y",
+			"next-state": "C",
+			"movement": "L"
+		},
+		{
+			"current-state": "G",
+			"current-symbol": "X",
+			"next-symbol": "0",
+			"next-state": "G",
+			"movement": "R"
+		},
+		{
+			"current-state": "F",
+			"current-symbol": "Y",
+			"next-symbol": "Y",
+			"next-state": "E",
+			"movement": "L"
+		},
+		{
+			"current-state": "D",
+			"current-symbol": "1",
+			"next-symbol": "1",
+			"next-state": "D",
+			"movement": "L"
+		},
+		{
+			"current-state": "B",
+			"current-symbol": "0",
+			"next-symbol": "0",
+			"next-state": "B",
+			"movement": "R"
+		},
+		{
+			"current-state": "C",
+			"current-symbol": "X",
+			"next-symbol": "X",
+			"next-state": "D",
+			"movement": "L"
+		},
+		{
+			"current-state": "D",
+			"current-symbol": "X",
+			"next-symbol": "X",
+			"next-state": "A",
+			"movement": "R"
+		},
+		{
+			"current-state": "D",
+			"current-symbol": "0",
+			"next-symbol": "0",
+			"next-state": "D",
+			"movement": "L"
+		},
+		{
+			"current-state": "A",
+			"current-symbol": " ",
+			"next-symbol": " ",
+			"next-state": "G",
+			"movement": "R"
+		},
+		{
+			"current-state": "D",
+			"current-symbol": "Y",
+			"next-symbol": "Y",
+			"next-state": "A",
+			"movement": "R"
+		},
+		{
+			"current-state": "E",
+			"current-symbol": "Y",
+			"next-symbol": "Y",
+			"next-state": "D",
+			"movement": "L"
+		},
+		{
+			"current-state": "F",
+			"current-symbol": "0",
+			"next-symbol": "0",
+			"next-state": "F",
+			"movement": "R"
+		},
+		{
+			"current-state": "F",
+			"current-symbol": " ",
+			"next-symbol": " ",
+			"next-state": "E",
+			"movement": "L"
+		},
+		{
+			"current-state": "F",
+			"current-symbol": "X",
+			"next-symbol": "X",
+			"next-state": "E",
+			"movement": "L"
+		},
+		{
+			"current-state": "E",
+			"current-symbol": "1",
+			"next-symbol": "Y",
+			"next-state": "D",
+			"movement": "L"
+		},
+		{
+			"current-state": "D",
+			"current-symbol": " ",
+			"next-symbol": " ",
+			"next-state": "A",
+			"movement": "R"
+		},
+		{
+			"current-state": "G",
+			"current-symbol": "Y",
+			"next-symbol": "1",
+			"next-state": "G",
+			"movement": "R"
+		}
+	]
+}
