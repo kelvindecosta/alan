@@ -4,7 +4,7 @@ A Turing Machine simulator
 
 ## Installation
 
-Build it from source using 
+Download the [latest release](https://github.com/kelvindecosta/alan/releases/latest) or build it from source
 
 ```bash
 go get -u github.com/kelvindecosta/alan
