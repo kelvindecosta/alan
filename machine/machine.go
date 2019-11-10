@@ -87,6 +87,7 @@ func (m *Machine) SetTransition(currentState string, currentSymbol, nextSymbol r
 	m.transitions[currentState][currentSymbol] = changes{nextSymbol, direction, nextState}
 }
 
+// Reset loads an input string as the tape of the Machine and sets the current state to the start state
 func (m *Machine) Reset(input string) {
 	m.currentState = m.startState
 	m.tape = list.New()
