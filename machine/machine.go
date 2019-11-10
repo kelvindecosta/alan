@@ -3,6 +3,9 @@ package machine
 import (
 	"container/list"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"regexp"
 	"strings"
 )
 
@@ -13,207 +16,122 @@ type changes struct {
 	state     string
 }
 
-// A Machine represents the implementation for the Turing Machine datastructure
+// Machine defines the basic data structure for a Turing machine
 type Machine struct {
-	// Formal definition
 	symbols     map[rune]void
-	blank       rune
+	blankSymbol rune
 	states      map[string]void
-	start       string
-	end         map[string]void
+	startState  string
+	endStates   map[string]void
 	transitions map[string]map[rune]changes
 
-	// Implementation variables
-	current string
-	tape    *list.List
-	head    *list.Element
+	currentState string
+	tape         *list.List
+	head         *list.Element
 }
 
-// NewMachine initializes and returns a new Machine variable
+// NewMachine returns a Machine instance
 func NewMachine() *Machine {
 	m := Machine{}
 	m.symbols = make(map[rune]void)
 	m.states = make(map[string]void)
-	m.end = make(map[string]void)
+	m.endStates = make(map[string]void)
 	m.transitions = make(map[string]map[rune]changes)
 
 	return &m
 }
 
-// AddSymbol adds a symbol to the Machine
-func (m *Machine) AddSymbol(symbol rune) {
+// SetSymbol stores a symbol in the Machine definition
+// The symbol can be set as the blank symbol only if it is being set for the first time
+// The program halts if a symbol is set as the blank symbol when the blank symbol is already set
+func (m *Machine) SetSymbol(symbol rune, isBlank bool) {
 	m.symbols[symbol] = void{}
-}
-
-// SetBlankSymbol sets a symbol as the blank symbol of the Machine
-// and returns an error if the blank symbol is already set
-func (m *Machine) SetBlankSymbol(symbol rune) error {
-	m.AddSymbol(symbol)
-	if m.blank == 0 {
-		m.blank = symbol
-		return nil
-	}
-	return fmt.Errorf("Machine already has a blank symbol : %#v", m.blank)
-}
-
-// GetSymbols returns the symbols and blank symbol of the Machine
-// and an error if the Machine has no symbols
-func (m *Machine) GetSymbols() ([]rune, rune, error) {
-	symbols := []rune{}
-	if len(m.symbols) == 0 {
-		return symbols, 0, fmt.Errorf("Machine has no symbols")
-	}
-
-	for r := range m.symbols {
-		symbols = append(symbols, r)
-	}
-	return symbols, m.blank, nil
-}
-
-// AddState adds a state to the Machine
-func (m *Machine) AddState(state string) {
-	m.states[state] = void{}
-}
-
-// SetStartState sets a state as the start state of the Machine
-// and returns  an error if the start state is already set
-func (m *Machine) SetStartState(state string) error {
-	m.AddState(state)
-	if m.start == "" {
-		m.start = state
-		return nil
-	}
-	return fmt.Errorf("Machine already has a start state : %s", m.start)
-}
-
-// AddEndState adds a state to the set of end states
-func (m *Machine) AddEndState(state string) {
-	m.AddState(state)
-	m.end[state] = void{}
-}
-
-// GetStates returns the states, start state and end states of a Machine
-// and an error if the Machine has no states
-func (m *Machine) GetStates() ([]string, string, []string, error) {
-	states := []string{}
-	end := []string{}
-	if len(m.states) == 0 {
-		return states, "", end, fmt.Errorf("Machine has no states")
-	}
-
-	for k := range m.states {
-		states = append(states, k)
-	}
-
-	for k := range m.end {
-		end = append(end, k)
-	}
-
-	return states, m.start, end, nil
-}
-
-// AddTransition adds a state transition to the Machine
-func (m *Machine) AddTransition(curState string, curSym, nextSym rune, dir bool, nextState string) {
-	if _, ok := m.transitions[curState]; !ok {
-		m.transitions[curState] = make(map[rune]changes)
-	}
-	m.AddState(curState)
-	m.AddSymbol(curSym)
-	m.AddSymbol(nextSym)
-	m.AddState(nextState)
-
-	m.transitions[curState][curSym] = changes{nextSym, dir, nextState}
-}
-
-// String returns a human readable form of the Machine
-func (m Machine) String() string {
-	var builder strings.Builder
-	builder.WriteString("Machine\n")
-
-	symbols, blank, _ := m.GetSymbols()
-	builder.WriteString("\tSymbols : [")
-	for _, r := range symbols {
-		builder.WriteString(fmt.Sprintf("'%c', ", r))
-	}
-	builder.WriteString("]\n")
-	builder.WriteString(fmt.Sprintf("\tBlank : '%c'\n", blank))
-
-	states, start, end, _ := m.GetStates()
-	builder.WriteString(fmt.Sprintf("\tStates : %v\nStart : %s\n\tEnd : %v\n", states, start, end))
-	builder.WriteString(fmt.Sprintf("\tTransitions : %v\n", m.transitions))
-
-	return builder.String()
-}
-
-// GetTape returns the tape of the Machine and the index of its head
-// and an error if the Machine is not given an input tape
-func (m *Machine) GetTape() (string, int, error) {
-	if m.tape.Len() == 0 {
-		return "", -1, fmt.Errorf("Machine is not given an input tape")
-	}
-	var builder strings.Builder
-	i, h := 0, 0
-	for e := m.tape.Front(); e != nil; e = e.Next() {
-		r := e.Value.(rune)
-		builder.WriteRune(r)
-		if m.head.Value.(rune) == r {
-			h = i
+	if isBlank {
+		if m.blankSymbol == 0 {
+			m.blankSymbol = symbol
+		} else {
+			log.Fatalf("Machine got blank symbol '%c' which is already set to '%c'", symbol, m.blankSymbol)
 		}
-		i++
 	}
-	return builder.String(), h, nil
 }
 
-// Reset resets the runtime state of the Machine by loading the tape with an input string
+// SetState stores a state in the Machine definition
+// The state can be set as the start state and/or one of the end states if it is being set for the first time
+// The program halts if a state is set as the start state when the start state is already set
+func (m *Machine) SetState(state string, isStart, isEnd bool) {
+	m.states[state] = void{}
+	if isStart {
+		if m.startState == "" {
+			m.startState = state
+		} else {
+			log.Fatalf("Machine got start state '%s' which is already set to '%s'", state, m.startState)
+		}
+	}
+
+	if isEnd {
+		m.endStates[state] = void{}
+	}
+}
+
+// SetTransition stores a transition in the Machine definition
+func (m *Machine) SetTransition(currentState string, currentSymbol, nextSymbol rune, direction bool, nextState string) {
+	if _, ok := m.transitions[currentState]; !ok {
+		m.transitions[currentState] = make(map[rune]changes)
+	}
+
+	m.SetState(currentState, false, false)
+	m.SetState(nextState, false, false)
+	m.SetSymbol(currentSymbol, false)
+	m.SetSymbol(nextSymbol, false)
+
+	m.transitions[currentState][currentSymbol] = changes{nextSymbol, direction, nextState}
+}
+
 func (m *Machine) Reset(input string) {
-	m.current = m.start
+	m.currentState = m.startState
 	m.tape = list.New()
-	for _, r := range input {
-		m.tape.PushBack(r)
+	if input == "" {
+		m.tape.PushBack(m.blankSymbol)
+	} else {
+		for _, r := range input {
+			m.tape.PushBack(r)
+		}
 	}
 	m.head = m.tape.Front()
 }
 
-// Step implements one iteration of the computation by the Machine
-// It returns whether or not the Machine halted
+// Step defines one transition by the Turing machine
+// and returns whether or not the machine halts due to no valid transition
 func (m *Machine) Step() bool {
-	next, ok := m.transitions[m.current][m.head.Value.(rune)]
+	change, ok := m.transitions[m.currentState][m.head.Value.(rune)]
 	if !ok {
 		return true
 	}
 
-	// Change symbol at head
-	m.head.Value = next.symbol
+	m.head.Value = change.symbol
 
-	// Move tape
-	if next.direction {
-		if temp := m.head.Prev(); temp != nil {
-			// Moves head to the left
+	if change.direction {
+		if temp := m.head.Next(); temp != nil {
 			m.head = temp
 		} else {
-			// Moves head to the left after inserting a blank
-			m.tape.PushFront(m.blank)
-			m.head = m.tape.Front()
+			m.tape.PushBack(m.blankSymbol)
+			m.head = m.tape.Back()
 		}
 	} else {
-		if temp := m.head.Next(); temp != nil {
-			// Moves head to the right
+		if temp := m.head.Prev(); temp != nil {
 			m.head = temp
 		} else {
-			// Moves head to the right after inserting a blank
-			m.tape.PushBack(m.blank)
-			m.head = m.tape.Back()
+			m.tape.PushFront(m.blankSymbol)
+			m.head = m.tape.Front()
 		}
 	}
 
-	// Change state
-	m.current = next.state
-
+	m.currentState = change.state
 	return false
 }
 
-// Compute implements maxSteps iterations of computation by a Machine on an input string
-// or until the Machine halts. It returns whether or not the Machine halted and accepted the string
+// Compute defines a computation by the Turing machine on an input string
+// and returns whether the machine halted and whether it accepted the input string
 func (m *Machine) Compute(input string, maxSteps uint) (bool, bool) {
 	m.Reset(input)
 	var steps uint
@@ -224,6 +142,112 @@ func (m *Machine) Compute(input string, maxSteps uint) (bool, bool) {
 		halt = m.Step()
 	}
 
-	_, accepted := m.end[m.current]
+	_, accepted := m.endStates[m.currentState]
 	return halt, halt && accepted
+}
+
+// Parse parses the definition in a specified filename
+// and returns the corresponding Machine
+func (m *Machine) Parse(filename string) {
+	commentRE := regexp.MustCompile(`(#.*)`)
+
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	lines := strings.Split(string(data), "\n")
+	for i := range lines {
+		lines[i] = commentRE.ReplaceAllString(lines[i], "")
+		lines[i] = strings.TrimSpace(lines[i])
+	}
+
+	blankSymbolRE := regexp.MustCompile(`^'(.)'$`)
+	stateRE := regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)([.*])?$`)
+	transitionRE := regexp.MustCompile(`^'(.)'\s+'(.)'\s+([<>])\s+([a-zA-Z_][a-zA-Z0-9_]*)$`)
+	currentState := ""
+
+	for index, l := range lines {
+		if l == "" {
+			continue
+		}
+
+		bMatch := blankSymbolRE.FindStringSubmatch(l)
+		if len(bMatch) > 0 {
+			m.SetSymbol(rune(bMatch[1][0]), true)
+			continue
+		}
+
+		sMatch := stateRE.FindStringSubmatch(l)
+		if len(sMatch) > 0 {
+			currentState = sMatch[1]
+			isStart := false
+			isEnd := false
+
+			for _, r := range sMatch[2] {
+				switch r {
+				case '.':
+					isEnd = true
+				case '*':
+					isStart = true
+				}
+			}
+
+			m.SetState(currentState, isStart, isEnd)
+			continue
+		}
+
+		tMatch := transitionRE.FindStringSubmatch(l)
+		if len(tMatch) > 0 {
+			if currentState == "" {
+				break
+			}
+
+			direction := false
+			switch rune(tMatch[3][0]) {
+			case '<':
+				direction = false
+			case '>':
+				direction = true
+			}
+
+			m.SetTransition(currentState, rune(tMatch[1][0]), rune(tMatch[2][0]), direction, tMatch[4])
+			continue
+		}
+
+		log.Fatalf("Error at line %d\n", index+1)
+	}
+}
+
+// Graph returns a definition of the Machine in Graphviz (https://www.graphviz.org/)
+func (m *Machine) Graph() string {
+	var builder strings.Builder
+	builder.WriteString("digraph machine {\n")
+	builder.WriteString("\trankdir=LR;\n")
+	builder.WriteString("\tsize=\"8,5\";\n")
+
+	builder.WriteString("\n")
+	builder.WriteString("\tnode [shape = point]; 0;\n")
+
+	for state := range m.endStates {
+		builder.WriteString(fmt.Sprintf("\tnode [shape = doublecircle]; %s;\n", state))
+	}
+
+	builder.WriteString("\tnode [shape = circle];\n")
+	builder.WriteString(fmt.Sprintf("\t0 -> %s;\n", m.startState))
+
+	for currentState := range m.states {
+		for currentSymbol, change := range m.transitions[currentState] {
+			dir := 'L'
+			if change.direction {
+				dir = 'R'
+			}
+
+			builder.WriteString(fmt.Sprintf("\t%s -> %s [ label = \"'%c', '%c', '%c'\" ];\n", currentState, change.state, currentSymbol, change.symbol, dir))
+		}
+	}
+
+	builder.WriteString("}\n")
+
+	return builder.String()
 }
