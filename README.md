@@ -1,8 +1,10 @@
 # Alan
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/kelvindecosta/alan)](https://goreportcard.com/report/github.com/kelvindecosta/alan)
+[![GoDoc](https://godoc.org/github.com/kelvindecosta/alan?status.svg)](https://godoc.org/github.com/kelvindecosta/alan)
 
-A programming language for *designing* Turing Machines.
+A programming language for *designing* Turing machines.
+
 
 ## Installation
 
@@ -12,217 +14,91 @@ Download the [latest release](https://github.com/kelvindecosta/alan/releases/lat
 go get -u github.com/kelvindecosta/alan
 ```
 
-## Definition
+## Walkthrough
 
-Alan constructs Turing Machines based on the following formal definition:
+This section describes a workflow.
 
-*   ![machine](assets/machine.gif)
-    >   A Turing **Machine**.
-*   ![states](assets/states.gif)
-    >   A *finite*, *non-empty* set of **states**.
-*   ![start](assets/start.gif)
-    >   The starting state
-*   ![endstates](assets/endstates.gif)
-    >   The set of **final** or **accepting** states.
-    >
-    >   The machine is said to *accept* an input tape if it halts in one of these states.
-*   ![tape](assets/tape.gif)
-    >   A *finite* *non-empty* set of **tape symbols**.
-*   ![blank](assets/blank.gif)
-    >   A *symbol* which occurs **infinitely often** at any step during computation.
-*   ![symbols](assets/symbols.gif)
-    >   The set of **input symbols** which are allowed to appear in the *initial* tape contents.
-*   ![transitions](assets/transitions.gif)
-    >   A *partial function* describing the **transitions** in the Turing Machine.
-    >
-    >   Whenever the machine is in a *particular state* and encounters a *particular character* in the tape, it is associated with a **unique ordered triplet** of a *state*, *symbol* and *direction*.
+For an in-depth guide navigate to the [Wiki](https://github.com/kelvindecosta/alan/wiki).
+Here are some useful links:
 
+*   [Definition](https://github.com/kelvindecosta/alan/wiki/Definition)
+*   [Syntax](https://github.com/kelvindecosta/alan/wiki/Syntax)
+*   [Interface](https://github.com/kelvindecosta/alan/wiki/Interface)
 
-
-## Syntax
-
-Refer to [this example](./examples/binary-palindrome.aln) as you learn the simple syntax.
-
-### Comments
-
-Alan supports *single line* comments with `#`.
+Consider the following example, the definition for a Turing machine that accepts all binary strings that are palindromic:
 
 ```
 # This is a definition of a Turing Machine that accepts binary strings that are palindromes
-```
-
-### Symbol
-
-The *first parsed line* of a definition must be the *blank character* surrounded by *single quotes*.
-
-```
 ' '
-```
-
-> The program throws an error if multiple symbols are set as the blank symbol.
->
-> The program infers the rest of the symbols from the transitions.
-
-### State
-
-A state is a *valid identifier*.
-
-*   States that are followed by a `*` are set as the start state.
-
-    ```
-    A*
-    ```
-
-    > Only one state can be set as the start state.
-
-*   States that are followed by a `.` are set as an end state.
-
-    ```
-    G.
-    ```
-
-    >   Note that the state `S` can be set as *both* the start state and an end state in the following ways:
-    >    *   `S.*`
-    >    *   `S*.`
-
-### Transition
-
-Syntactically, transitions *immediately follow* a state.
-
-```
 A*
     'X' 'X' < A
     'Y' 'Y' < A
     '0' 'X' > B
     '1' 'Y' > F
     ' ' ' ' > G
+B                   # Starting with 0
+    '0' '0' > B
+    '1' '1' > B
+    ' ' ' ' < C
+    'X' 'X' < C
+    'Y' 'Y' < C
+F                   # Starting with 1
+    '0' '0' > F
+    '1' '1' > F
+    ' ' ' ' < E
+    'X' 'X' < E
+    'Y' 'Y' < E
+C
+    '0' 'X' < D
+    'X' 'X' < D
+E
+    '1' 'Y' < D
+    'Y' 'Y' < D
+D
+    '0' '0' < D
+    '1' '1' < D
+    ' ' ' ' > A
+    'X' 'X' > A
+    'Y' 'Y' > A
+G.
+    'X' '0' > G
+    'Y' '1' > G
 ```
 
-They are defined as : `'currentSymbol' 'nextSymbol' direction 'nextState'`.
+Graph the machine:
 
-> Note that the `directions` `<` & `>` correspond to left & right moves along the tape.
-
-> Note that the tape head points to `currentSymbol` which is changed to `nextSymbol` prior to moving.
-
-## Usage
-
-Summon Alan using the command `alan`.
-
-```
-A programming language for designing Turing Machines
-
-Usage:
-  alan [command]
-
-Available Commands:
-  graph       Graph a Turing Machine
-  help        Help about any command
-  run         Run a Turing Machine
-
-Flags:
-  -h, --help   help for alan
-
-Use "alan [command] --help" for more information about a command.
+```bash
+alan graph _examples/binary-palindrome.aln | dot -Tpng -o _assets/readme/binary-palindrome.png
 ```
 
-### `run`
+<p align="center"><img src="_assets/readme/binary-palindrome.png"></p>
 
-This subcommand loads a Turing Machine from a file and **performs computation** on an *input string*.
-
-```
-Run a Turing Machine
-
-Usage:
-  alan run file [flags]
-
-Flags:
-  -h, --help             help for run
-  -i, --input string     input string
-  -m, --max-steps uint   maximum steps before forced halt (default 200)
-```
-
-#### Example
+Run the machine on some inputs:
 
 *   ```bash
-    alan run examples/binary-palindrome.aln -i 101
+    alan run _examples/binary-palindrome.aln -i 101
     ```
 
     ```
-    Halted   : true
-    Accepted : true
+    Accepted
     ```
-
 *   ```bash
-    alan run examples/binary-palindrome.aln -i 1010
+    alan run _examples/binary-palindrome.aln -i 1010
     ```
 
     ```
-    Halted   : true
-    Accepted : false
+    Rejected
     ```
 
-### `graph`
+## Citation
 
-This subcommand loads a Turing machine from a file and outputs the definition for the same in [DOT](https://www.graphviz.org/doc/info/lang.html), a language that ships with [Graphviz](https://www.graphviz.org/)
+If you use this implementation in your work, please cite the following:
 
 ```
-Graph a Turing Machine
-
-Usage:
-  alan graph file [flags]
-
-Flags:
-  -h, --help   help for graph
+@misc{decosta2019alan,
+    author = {Kelvin DeCosta},
+    title = {Alan},
+    year = {2019},
+    howpublished = {\url{https://github.com/kelvindecosta/alan}},
+}
 ```
-
-#### Example
-
-*   ```bash
-    alan graph examples/binary-palindrome.aln
-    ```
-
-    ```
-    digraph machine {
-        rankdir=LR;
-        size="8,5";
-
-        node [shape = point]; 0;
-        node [shape = doublecircle]; G;
-        node [shape = circle];
-        0 -> A;
-        B -> B [ label = "'0', '0', 'R'" ];
-        B -> B [ label = "'1', '1', 'R'" ];
-        B -> C [ label = "' ', ' ', 'L'" ];
-        B -> C [ label = "'X', 'X', 'L'" ];
-        B -> C [ label = "'Y', 'Y', 'L'" ];
-        F -> F [ label = "'0', '0', 'R'" ];
-        F -> F [ label = "'1', '1', 'R'" ];
-        F -> E [ label = "' ', ' ', 'L'" ];
-        F -> E [ label = "'X', 'X', 'L'" ];
-        F -> E [ label = "'Y', 'Y', 'L'" ];
-        G -> G [ label = "'X', '0', 'R'" ];
-        G -> G [ label = "'Y', '1', 'R'" ];
-        C -> D [ label = "'0', 'X', 'L'" ];
-        C -> D [ label = "'X', 'X', 'L'" ];
-        E -> D [ label = "'1', 'Y', 'L'" ];
-        E -> D [ label = "'Y', 'Y', 'L'" ];
-        D -> D [ label = "'0', '0', 'L'" ];
-        D -> D [ label = "'1', '1', 'L'" ];
-        D -> A [ label = "' ', ' ', 'R'" ];
-        D -> A [ label = "'X', 'X', 'R'" ];
-        D -> A [ label = "'Y', 'Y', 'R'" ];
-        A -> G [ label = "' ', ' ', 'R'" ];
-        A -> A [ label = "'X', 'X', 'L'" ];
-        A -> A [ label = "'Y', 'Y', 'L'" ];
-        A -> B [ label = "'0', 'X', 'R'" ];
-        A -> F [ label = "'1', 'Y', 'R'" ];
-    }
-    ```
-
-*   With `dot` command and some *piping*, Alan can create a **visualization** of the Turing Machine defined in a file.
-
-    ```bash
-    alan graph examples/binary-palindrome.aln | dot -Tpng -o assets/binary-palindrome.png
-    ```
-
-    <p align="center"><img src="assets/examples/binary-palindrome.png"></p>

@@ -16,7 +16,7 @@ type changes struct {
 	state     string
 }
 
-// Machine defines the basic data structure for a Turing machine
+// Machine defines the basic data structure for a Turing machine.
 type Machine struct {
 	symbols     map[rune]void
 	blankSymbol rune
@@ -30,7 +30,7 @@ type Machine struct {
 	head         *list.Element
 }
 
-// NewMachine returns a Machine instance
+// NewMachine returns a Machine instance.
 func NewMachine() *Machine {
 	m := Machine{}
 	m.symbols = make(map[rune]void)
@@ -41,9 +41,9 @@ func NewMachine() *Machine {
 	return &m
 }
 
-// SetSymbol stores a symbol in the Machine definition
-// The symbol can be set as the blank symbol only if it is being set for the first time
-// The program halts if a symbol is set as the blank symbol when the blank symbol is already set
+// SetSymbol stores a symbol in the Machine definition.
+// It can only change a symbol to the blank symbol, not vice versa.
+// The program crashes if a symbol is set as the blank symbol when the blank symbol is already set.
 func (m *Machine) SetSymbol(symbol rune, isBlank bool) {
 	m.symbols[symbol] = void{}
 	if isBlank {
@@ -55,9 +55,9 @@ func (m *Machine) SetSymbol(symbol rune, isBlank bool) {
 	}
 }
 
-// SetState stores a state in the Machine definition
-// The state can be set as the start state and/or one of the end states if it is being set for the first time
-// The program halts if a state is set as the start state when the start state is already set
+// SetState stores a state in the Machine definition.
+// It can only change a state to the first / an end state, not vice versa.
+// The program crashes if a state is set as the start state when the start state is already set.
 func (m *Machine) SetState(state string, isStart, isEnd bool) {
 	m.states[state] = void{}
 	if isStart {
@@ -73,7 +73,7 @@ func (m *Machine) SetState(state string, isStart, isEnd bool) {
 	}
 }
 
-// SetTransition stores a transition in the Machine definition
+// SetTransition stores a transition in the Machine definition.
 func (m *Machine) SetTransition(currentState string, currentSymbol, nextSymbol rune, direction bool, nextState string) {
 	if _, ok := m.transitions[currentState]; !ok {
 		m.transitions[currentState] = make(map[rune]changes)
@@ -87,7 +87,7 @@ func (m *Machine) SetTransition(currentState string, currentSymbol, nextSymbol r
 	m.transitions[currentState][currentSymbol] = changes{nextSymbol, direction, nextState}
 }
 
-// Reset loads an input string as the tape of the Machine and sets the current state to the start state
+// Reset loads an input string as the tape of the Machine and sets the current state to the start state.
 func (m *Machine) Reset(input string) {
 	m.currentState = m.startState
 	m.tape = list.New()
@@ -102,7 +102,7 @@ func (m *Machine) Reset(input string) {
 }
 
 // Step defines one transition by the Turing machine
-// and returns whether or not the machine halts due to no valid transition
+// and returns whether or not the machine halts due to no valid transition.
 func (m *Machine) Step() bool {
 	change, ok := m.transitions[m.currentState][m.head.Value.(rune)]
 	if !ok {
@@ -132,7 +132,7 @@ func (m *Machine) Step() bool {
 }
 
 // Compute defines a computation by the Turing machine on an input string
-// and returns whether the machine halted and whether it accepted the input string
+// and returns whether the machine halted and whether it accepted the input string.
 func (m *Machine) Compute(input string, maxSteps uint) (bool, bool) {
 	m.Reset(input)
 	var steps uint
@@ -148,7 +148,7 @@ func (m *Machine) Compute(input string, maxSteps uint) (bool, bool) {
 }
 
 // Parse parses the definition in a specified filename
-// and returns the corresponding Machine
+// and returns the corresponding Machine.
 func (m *Machine) Parse(filename string) {
 	commentRE := regexp.MustCompile(`(#.*)`)
 
@@ -220,7 +220,7 @@ func (m *Machine) Parse(filename string) {
 	}
 }
 
-// Graph returns a definition of the Machine in Graphviz (https://www.graphviz.org/)
+// Graph returns a definition of the Machine in Graphviz (https://www.graphviz.org/).
 func (m *Machine) Graph() string {
 	var builder strings.Builder
 	builder.WriteString("digraph machine {\n")

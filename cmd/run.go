@@ -17,8 +17,17 @@ var runCmd = &cobra.Command{
 		maxSteps, _ := cmd.Flags().GetUint("max-steps")
 		m := machine.NewMachine()
 		m.Parse(args[0])
-		h, a := m.Compute(input, maxSteps)
-		fmt.Printf("Halted   : %v\nAccepted : %v\n", h, a)
+		halted, accepted := m.Compute(input, maxSteps)
+
+		if halted {
+			if accepted {
+				fmt.Println("Accepted")
+			} else {
+				fmt.Println("Rejected")
+			}
+		} else {
+			fmt.Println("Undecided")
+		}
 	},
 }
 
