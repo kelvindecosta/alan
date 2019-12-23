@@ -1,17 +1,32 @@
 # Alan
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/kelvindecosta/alan)](https://goreportcard.com/report/github.com/kelvindecosta/alan)
-[![GoDoc](https://godoc.org/github.com/kelvindecosta/alan?status.svg)](https://godoc.org/github.com/kelvindecosta/alan)
+<p align=center>
 
-A programming language for *designing* Turing machines.
+  <img src="https://raw.githubusercontent.com/kelvindecosta/alan/master/assets/readme/logo.png" height="200px"/>
 
+  <br>
+  <span>A programming language for <em>designing</em> Turing machines.</span>
+  <br>
+  <a target="_blank" href="https://www.python.org/downloads/" title="Python version"><img src="https://img.shields.io/badge/python-%3E=_3.6-green.svg"></a>
+  <a target="_blank" href="LICENSE" title="License: MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+  <a target="_blank" href="https://pypi.python.org/pypi/alan/"><img alt="pypi package" src="https://badge.fury.io/py/alan.svg"></a>
+</p>
+
+<p align="center">
+  <a href="#walkthrough">Walkthrough</a>
+  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#installation">Installation</a>
+  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/kelvindecosta/alan/wiki">Wiki</a>
+  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#citation">Citation</a>
+
+</p>
 
 ## Installation
 
-Download the [latest release](https://github.com/kelvindecosta/alan/releases/latest) or build it from source.
-
 ```bash
-go get -u github.com/kelvindecosta/alan
+pip install alan
 ```
 
 ## Walkthrough
@@ -68,27 +83,46 @@ G.
 Graph the machine:
 
 ```bash
-alan graph _examples/binary-palindrome.aln | dot -Tpng -o _assets/readme/binary-palindrome.png
+alan graph examples/binary-palindrome.aln -f assets/readme/binary-palindrome.png
 ```
 
-<p align="center"><img src="_assets/readme/binary-palindrome.png"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/kelvindecosta/alan/master/assets/readme/binary-palindrome.png"></p>
 
 Run the machine on some inputs:
 
 *   ```bash
-    alan run _examples/binary-palindrome.aln -i 101
+    alan run examples/binary-palindrome.aln 101
     ```
 
     ```
     Accepted
+    Initial Tape : 101
+    Final Tape   : 10
     ```
+
 *   ```bash
-    alan run _examples/binary-palindrome.aln -i 1010
+    alan run examples/binary-palindrome.aln 1010
     ```
 
     ```
     Rejected
+    Initial Tape : 1010
+    Final Tape   : Y010
     ```
+
+Animate the computation on some inputs:
+
+*   ```bash
+    alan run examples/binary-palindrome.aln 101 -a -f assets/readme/binary-palindrome-accepted.gif
+    ```
+
+    ![Animation of accepted input](https://raw.githubusercontent.com/kelvindecosta/alan/master/assets/readme/binary-palindrome-accepted.gif)
+
+*   ```bash
+    alan run examples/binary-palindrome.aln 1010 -a -f assets/readme/binary-palindrome-rejected.gif
+    ```
+
+    ![Animation of rejected input](https://raw.githubusercontent.com/kelvindecosta/alan/master/assets/readme/binary-palindrome-rejected.gif)
 
 ## Citation
 
