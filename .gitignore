@@ -1,3 +1,5 @@
-_build/
-_wiki/
-build.sh
+__pycache__/
+build
+dist
+*.egg-info
+wiki/
