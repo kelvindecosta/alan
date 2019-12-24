@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="alan",
-    version="0.4",
+    version="0.4.1",
     description="A programming language for designing Turing machines",
     long_description=long_description,
     long_description_content_type="text/markdown",
