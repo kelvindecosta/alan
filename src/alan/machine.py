@@ -256,8 +256,3 @@ class Machine:
             return f"Graph saved to {kwargs.get('filename')}"
 
         return graph
-
-if __name__ == "__main__":
-    with open("examples/binary-palindrome.aln", "r") as f:
-        m = Machine(f.read())
-        m.run("101")
