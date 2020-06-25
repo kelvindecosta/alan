@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="alan",
-    version="0.4.1",
+    version="0.4.2",
     description="A programming language for designing Turing machines",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -19,16 +19,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
-    packages=find_packages("src"),
-    package_dir={"" : "src"},
-    install_requires=[
-        "imageio",
-        "pydot"
-    ],
-    entry_points={
-        "console_scripts": [
-            "alan = alan.__main__:main",
-        ]
-    },
+    python_requires=">=3.6",
+    packages=["alan"],
+    package_dir={"alan": "src"},
+    install_requires=["imageio", "pydot"],
+    entry_points={"console_scripts": ["alan = alan.__main__:main",]},
 )

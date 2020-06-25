@@ -2,6 +2,7 @@ import imageio
 import re
 from pydot import Dot, Edge, Node, Subgraph
 
+
 class Machine:
     """
     The abstract class for a Turing Machine.
@@ -22,7 +23,6 @@ class Machine:
         self._tape = None
         self._head = None
 
-
     def _set_symbol(self, symbol, blank=False):
         """
         Adds a symbol to the set of symbols of the Machine.
@@ -41,8 +41,9 @@ class Machine:
             if blank:
                 self._blank_symbol = symbol
         except:
-            raise Exception(f"Machine got blank symbol '{symbol}' which is already set to '{self._blank_symbol}'")
-
+            raise Exception(
+                f"Machine got blank symbol '{symbol}' which is already set to '{self._blank_symbol}'"
+            )
 
     def _set_state(self, state, start=False, end=False):
         """
@@ -65,10 +66,13 @@ class Machine:
             if start:
                 self._start_state = state
         except:
-            raise Exception(f"Machine got start state '{state}' which is already set to '{self._start_state}'")
+            raise Exception(
+                f"Machine got start state '{state}' which is already set to '{self._start_state}'"
+            )
 
-
-    def _set_transition(self, current_state, current_symbol, next_symbol, direction, next_state):
+    def _set_transition(
+        self, current_state, current_symbol, next_symbol, direction, next_state
+    ):
         """
         Adds a transition to the set of transitions of the Machine.
 
@@ -87,8 +91,11 @@ class Machine:
         if self._transitions.get(current_state) is None:
             self._transitions[current_state] = {}
 
-        self._transitions[current_state][current_symbol] = (next_symbol, direction, next_state)
-
+        self._transitions[current_state][current_symbol] = (
+            next_symbol,
+            direction,
+            next_state,
+        )
 
     def parse(self, definition):
         """
@@ -99,9 +106,16 @@ class Machine:
         """
         comment_re = re.compile(r"(#.*)")
         state_re = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)([.*])?$")
-        transition_re = re.compile(r"^'(.)'\s+'(.)'\s+([<>])\s+([a-zA-Z_][a-zA-Z0-9_]*)$")
+        transition_re = re.compile(
+            r"^'(.)'\s+'(.)'\s+([<>])\s+([a-zA-Z_][a-zA-Z0-9_]*)$"
+        )
 
-        lines = list(filter(lambda x : len(x) > 0, map(lambda x: comment_re.sub("", x).strip(), definition.split("\n"))))
+        lines = list(
+            filter(
+                lambda x: len(x) > 0,
+                map(lambda x: comment_re.sub("", x).strip(), definition.split("\n")),
+            )
+        )
         self._set_symbol(lines.pop(0)[1], True)
 
         scope_state = None
@@ -120,7 +134,6 @@ class Machine:
             except:
                 pass
 
-
     def reset(self, tape):
         """
         Resets the tape, head and state of the Machine.
@@ -132,7 +145,6 @@ class Machine:
         self._tape = list(tape)
         self._head = 0
 
-
     def step(self):
         """
         Performs one Machine step.
@@ -142,7 +154,9 @@ class Machine:
         """
         try:
             current_symbol = self._tape[self._head]
-            next_symbol, direction, self._current_state = self._transitions.get(self._current_state).get(current_symbol)
+            next_symbol, direction, self._current_state = self._transitions.get(
+                self._current_state
+            ).get(current_symbol)
         except:
             return True
 
@@ -157,7 +171,6 @@ class Machine:
             self._head = len(self._tape) - 1
 
         return False
-
 
     def run(self, tape, max_steps=200, animate=False, **kwargs):
         """
@@ -183,11 +196,14 @@ class Machine:
                 raise Exception("Specify a filename to save the animation")
             images = []
 
-
         for _ in range(max_steps):
             if animate:
-                images.append(imageio.imread(self.graph(False).create(prog="dot", format="png")))
-                images.append(imageio.imread(self.graph(True).create(prog="dot", format="png")))
+                images.append(
+                    imageio.imread(self.graph(False).create(prog="dot", format="png"))
+                )
+                images.append(
+                    imageio.imread(self.graph(True).create(prog="dot", format="png"))
+                )
 
             halt = self.step()
             if halt:
@@ -196,8 +212,11 @@ class Machine:
         if animate:
             imageio.mimsave(kwargs.get("filename"), images, fps=kwargs.get("fps"))
 
-        return halt, halt and self._current_state in self._end_states, "".join(self._tape).strip(self._blank_symbol)
-
+        return (
+            halt,
+            halt and self._current_state in self._end_states,
+            "".join(self._tape).strip(self._blank_symbol),
+        )
 
     def graph(self, context=None, **kwargs):
         """
@@ -210,7 +229,9 @@ class Machine:
             [pydot.Dot] -- graph object
         """
         graph = Dot(graph_type="digraph", rankdir=("LR" if context is None else "TB"))
-        machine_graph =  Subgraph(graph_name="cluster_machine", graph_type="digraph", label="MACHINE")
+        machine_graph = Subgraph(
+            graph_name="cluster_machine", graph_type="digraph", label="MACHINE"
+        )
 
         for current_state in sorted(self._states):
             node_args = {}
@@ -235,16 +256,26 @@ class Machine:
                     label = f"'{current_symbol}' '{next_symbol}' {'R' if direction else 'L'}"
 
                     edge_args = {}
-                    if context and current_state == self._current_state and current_symbol == self._tape[self._head]:
+                    if (
+                        context
+                        and current_state == self._current_state
+                        and current_symbol == self._tape[self._head]
+                    ):
                         edge_args["color"] = "cyan"
-                    machine_graph.add_edge(Edge(current_state, next_state, label=label, **edge_args))
+                    machine_graph.add_edge(
+                        Edge(current_state, next_state, label=label, **edge_args)
+                    )
 
         graph.add_subgraph(machine_graph)
         if context is not None:
-            tape_graph = Subgraph(graph_name="cluster_tape", graph_type="digraph", label="TAPE")
+            tape_graph = Subgraph(
+                graph_name="cluster_tape", graph_type="digraph", label="TAPE"
+            )
             tape = []
             for index in range(-4 + self._head, 5 + self._head):
-                tape.append(f"<t{index}> {self._tape[index] if 0 <= index < len(self._tape) else self._blank_symbol}")
+                tape.append(
+                    f"<t{index}> {self._tape[index] if 0 <= index < len(self._tape) else self._blank_symbol}"
+                )
 
             tape_graph.add_node(Node("tape", label="|".join(tape), shape="record"))
             tape_graph.add_node(Node("t0", shape="point"))
